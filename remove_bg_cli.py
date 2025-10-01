@@ -3,6 +3,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from rembg import new_session, remove
+from PIL import Image
 import io
 import uvicorn
 import os
@@ -22,6 +23,9 @@ app.add_middleware(
 # Create rembg session once at startup
 session = new_session("u2netp")
 
+# Max dimension to reduce memory usage
+MAX_DIMENSION = 1024  # pixels
+
 @app.get("/")
 def health():
     return {"status": "ok"}
@@ -31,8 +35,18 @@ async def remove_bg(file: UploadFile = File(...)):
     # Read uploaded file bytes
     input_bytes = await file.read()
 
+    # Open image and resize if too large
+    image = Image.open(io.BytesIO(input_bytes))
+    if max(image.size) > MAX_DIMENSION:
+        image.thumbnail((MAX_DIMENSION, MAX_DIMENSION))
+    
+    # Convert resized image back to bytes
+    buf = io.BytesIO()
+    image.save(buf, format=image.format or "PNG")
+    resized_bytes = buf.getvalue()
+
     # Remove background using rembg session
-    output_bytes = remove(input_bytes, session=session)
+    output_bytes = remove(resized_bytes, session=session)
 
     # Return bytes directly as PNG
     return StreamingResponse(io.BytesIO(output_bytes), media_type="image/png")
