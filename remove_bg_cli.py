@@ -3,9 +3,9 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from rembg import new_session, remove
-from PIL import Image
 import io
 import uvicorn
+import os
 
 # Initialize FastAPI without Swagger UI
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -34,16 +34,9 @@ async def remove_bg(file: UploadFile = File(...)):
     # Remove background using rembg session
     output_bytes = remove(input_bytes, session=session)
 
-    # Convert to PIL.Image and save as PNG
-    image = Image.open(io.BytesIO(output_bytes)).convert("RGBA")
-    buf = io.BytesIO()
-    image.save(buf, format="PNG")
-    buf.seek(0)
-
-    # Return StreamingResponse so browser/download can handle PNG
-    return StreamingResponse(buf, media_type="image/png")
+    # Return bytes directly as PNG
+    return StreamingResponse(io.BytesIO(output_bytes), media_type="image/png")
 
 if __name__ == "__main__":
-    import os
     PORT = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=PORT)
