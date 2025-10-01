@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from rembg import new_session, remove
 from PIL import Image
 import io
+import uvicorn
 
 # Initialize FastAPI without Swagger UI
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -41,3 +42,8 @@ async def remove_bg(file: UploadFile = File(...)):
 
     # Return StreamingResponse so browser/download can handle PNG
     return StreamingResponse(buf, media_type="image/png")
+
+if __name__ == "__main__":
+    import os
+    PORT = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
