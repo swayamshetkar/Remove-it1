@@ -3,4 +3,4 @@ uvicorn[standard]==0.23.2
 rembg==2.0.67
 pillow==10.2.0
 numpy==1.26.2
-onnxruntime==1.15.1
+onnxruntime==1.16.0
