@@ -24,7 +24,7 @@ app.add_middleware(
 session = new_session("u2netp")
 
 # Max dimension to reduce memory usage
-MAX_DIMENSION = 1024  # pixels
+MAX_DIMENSION = 512  # Smaller to fit 512MB RAM
 
 @app.get("/")
 def health():
@@ -35,14 +35,16 @@ async def remove_bg(file: UploadFile = File(...)):
     # Read uploaded file bytes
     input_bytes = await file.read()
 
-    # Open image and resize if too large to save memory
+    # Open image and convert to RGBA
     image = Image.open(io.BytesIO(input_bytes)).convert("RGBA")
+
+    # Resize if image is too large
     if max(image.size) > MAX_DIMENSION:
         image.thumbnail((MAX_DIMENSION, MAX_DIMENSION))
 
-    # Convert resized image back to bytes
+    # Convert resized image to bytes
     buf = io.BytesIO()
-    image.save(buf, format="PNG")  # Always save as PNG
+    image.save(buf, format="PNG")  # Always PNG
     buf.seek(0)
     resized_bytes = buf.read()
 
