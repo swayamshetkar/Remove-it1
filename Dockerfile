@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
+# Copy requirements first
 COPY requirements.txt .
 
 # Install Python dependencies
@@ -23,11 +23,11 @@ COPY . .
 ENV U2NET_HOME=/app/models
 RUN mkdir -p /app/models
 
-# Preload the u2netp model at build time
+# Preload the u2netp model at build time (ignore errors)
 RUN python -c "from rembg.session_factory import new_session; new_session('u2netp')" || true
 
-# Expose FastAPI port
+# Expose the container port (Render/Heroku detect port dynamically via $PORT)
 EXPOSE 8000
 
-# Run the FastAPI app
-CMD ["sh", "-c", "uvicorn remove_bg_cli:app --host 0.0.0.0 --port $PORT"]
+# Start FastAPI using $PORT environment variable
+CMD ["sh", "-c", "uvicorn remove_bg_cli:app --host 0.0.0.0 --port ${PORT:-8000}"]
