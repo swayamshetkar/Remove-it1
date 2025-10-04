@@ -30,4 +30,4 @@ RUN python -c "from rembg.session_factory import new_session; new_session('u2net
 EXPOSE 8000
 
 # Run the FastAPI app
-CMD ["uvicorn", "remove_bg_cli:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
