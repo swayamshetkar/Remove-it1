@@ -60,5 +60,5 @@ async def remove_bg(file: UploadFile = File(...)):
     return StreamingResponse(out_buf, media_type="image/png")
 
 if __name__ == "__main__":
-    PORT = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=PORT, reload=Fals)
+    PORT = int(os.environ.get("PORT", 10000))
+    uvicorn.run("remove_bg_cli:app", host="0.0.0.0", port=PORT, reload=False)
