@@ -3,7 +3,7 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies for Pillow and rembg
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -13,18 +13,21 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements
 COPY requirements.txt .
 
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Pre-download the u2netp model into /app/models
-RUN python -c "from rembg import new_session; import os; os.makedirs('/app/models', exist_ok=True); new_session('u2netp', model_dir='/app/models')"
 
 # Copy app code
 COPY . .
 
-# Tell rembg to use /app/models
+# Tell rembg to store the model in /app/models
 ENV U2NET_HOME=/app/models
+RUN mkdir -p /app/models
+
+# Preload the u2netp model at build time
+RUN python -c "from rembg.session_factory import new_session; new_session('u2netp')"
 
 # Expose FastAPI port
 EXPOSE 8000
 
+# Run the FastAPI app
 CMD ["uvicorn", "remove_bg_cli:app", "--host", "0.0.0.0", "--port", "8000"]
