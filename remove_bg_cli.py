@@ -1,4 +1,3 @@
-# main.py
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,17 +13,17 @@ app = FastAPI(docs_url=None, redoc_url=None)
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace "*" with your frontend domain
+    allow_origins=["*"],  # Replace "*" with frontend domain in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Create rembg session once at startup (lightweight u2netp model)
+# Preload rembg session (lightweight u2netp model)
 session = new_session("u2netp")
 
 # Max dimension to reduce memory usage
-MAX_DIMENSION = 512  # Smaller to fit 512MB RAM
+MAX_DIMENSION = 512
 
 @app.get("/")
 def health():
@@ -32,23 +31,24 @@ def health():
 
 @app.post("/remove-bg")
 async def remove_bg(file: UploadFile = File(...)):
-    # Read uploaded file bytes
+    # Read uploaded file bytes and close temp file
     input_bytes = await file.read()
+    await file.close()
 
     # Open image and convert to RGBA
     image = Image.open(io.BytesIO(input_bytes)).convert("RGBA")
 
-    # Resize if image is too large
+    # Resize large images
     if max(image.size) > MAX_DIMENSION:
         image.thumbnail((MAX_DIMENSION, MAX_DIMENSION))
 
-    # Convert resized image to bytes
+    # Convert resized image to bytes in memory
     buf = io.BytesIO()
-    image.save(buf, format="PNG")  # Always PNG
+    image.save(buf, format="PNG")
     buf.seek(0)
     resized_bytes = buf.read()
 
-    # Remove background using rembg session
+    # Remove background using preloaded session
     output_bytes = remove(resized_bytes, session=session)
 
     # Ensure valid PNG output
