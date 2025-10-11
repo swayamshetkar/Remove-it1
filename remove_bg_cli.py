@@ -61,6 +61,8 @@ async def remove_bg(file: UploadFile = File(...)):
 
 
 if __name__ == "__main__":
+    # 🔁 Start background ping thread to keep Render alive
+    start_keep_alive()
     # Use environment PORT if available (for Render, Railway, etc.)
     PORT = int(os.environ.get("PORT", 8000))
     uvicorn.run("remove_bg_cli:app", host="0.0.0.0", port=PORT, reload=False)
