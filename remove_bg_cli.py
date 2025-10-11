@@ -6,6 +6,7 @@ from PIL import Image
 import io
 import uvicorn
 import os
+from run_server import start_keep_alive
 
 # Initialize FastAPI without Swagger UI
 app = FastAPI(docs_url=None, redoc_url=None)
