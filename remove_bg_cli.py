@@ -75,4 +75,5 @@ if __name__ == "__main__":
     PORT = int(os.environ.get("PORT", 8000))
     
     # 🚀 Run uvicorn with single worker to prevent memory spikes
+    PORT = int(os.environ.get("PORT", 8000))
     uvicorn.run("remove_bg_cli:app", host="0.0.0.0", port=PORT, reload=False)
