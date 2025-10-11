@@ -27,6 +27,7 @@ session = new_session("u2netp")
 MAX_DIMENSION = 512
 
 @app.get("/")
+@app.head("/")
 def health():
     return {"status": "ok"}
 
