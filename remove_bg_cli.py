@@ -15,7 +15,7 @@ app = FastAPI(docs_url=None, redoc_url=None)
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace "*" with frontend domain in production
+    allow_origins=["https://removeit-website.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
